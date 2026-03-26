@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PEE Generator - Plan de Emergencia y Evacuación</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+    .header { background: linear-gradient(135deg, #1e3a5f 0%, #dc2626 100%); padding: 2rem; text-align: center; }
+    .header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    .header p { opacity: 0.9; font-size: 1rem; }
+
+    .container { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
+
+    .card { background: #1e293b; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid #334155; }
+    .card h2 { color: #f97316; font-size: 1.2rem; margin-bottom: 1rem; border-bottom: 2px solid #334155; padding-bottom: 0.5rem; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-grid.single { grid-template-columns: 1fr; }
+
+    .field { display: flex; flex-direction: column; }
+    .field label { font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.3rem; font-weight: 600; }
+    .field input, .field textarea, .field select {
+      background: #0f172a; border: 1px solid #475569; border-radius: 8px;
+      padding: 0.7rem; color: #e2e8f0; font-size: 0.95rem; transition: border-color 0.2s;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      outline: none; border-color: #f97316;
+    }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem; }
+    .checkbox-item { display: flex; align-items: center; gap: 0.5rem; }
+    .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #f97316; }
+
+    .btn-generate {
+      display: block; width: 100%; padding: 1rem; font-size: 1.2rem; font-weight: 700;
+      background: linear-gradient(135deg, #dc2626, #f97316); color: white; border: none;
+      border-radius: 12px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 1rem;
+    }
+    .btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(249,115,22,0.3); }
+    .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .status { text-align: center; padding: 1rem; color: #94a3b8; font-style: italic; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .header h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>PEE GENERATOR</h1>
+    <p>Generador de Planes de Emergencia y Evacuación para Condominios</p>
+  </div>
+
+  <div class="container">
+    <form id="peeForm">
+      <!-- Datos del Edificio -->
+      <div class="card">
+        <h2>Datos del Edificio</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>Nombre del Edificio *</label>
+            <input type="text" name="nombreEdificio" required placeholder="Ej: Torre Central">
+          </div>
+          <div class="field">
+            <label>Dirección *</label>
+            <input type="text" name="direccion" required placeholder="Ej: Av. Principal 123, Santiago">
+          </div>
+          <div class="field">
+            <label>Coordenadas Google Maps</label>
+            <input type="text" name="coordenadas" placeholder="Ej: -33.4424, -70.6428">
+          </div>
+          <div class="field">
+            <label>Año de Construcción</label>
+            <input type="text" name="anoConstruccion" placeholder="Ej: 2015">
+          </div>
+          <div class="field">
+            <label>Tipo de Estructura</label>
+            <select name="tipoEstructura">
+              <option value="Hormigón armado">Hormigón armado</option>
+              <option value="Albañilería reforzada">Albañilería reforzada</option>
+              <option value="Estructura metálica">Estructura metálica</option>
+              <option value="Mixta">Mixta</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Número de Pisos</label>
+            <input type="number" name="pisos" placeholder="Ej: 20">
+          </div>
+          <div class="field">
+            <label>Subterráneos</label>
+            <input type="number" name="subterraneos" placeholder="Ej: 3" value="0">
+          </div>
+          <div class="field">
+            <label>Departamentos / Unidades</label>
+            <input type="number" name="departamentos" placeholder="Ej: 120">
+          </div>
+          <div class="field">
+            <label>Estacionamientos</label>
+            <input type="number" name="estacionamientos" placeholder="Ej: 80">
+          </div>
+          <div class="field">
+            <label>Bodegas</label>
+            <input type="number" name="bodegas" placeholder="Ej: 60">
+          </div>
+          <div class="field">
+            <label>Ascensores</label>
+            <input type="number" name="ascensores" placeholder="Ej: 2" value="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Datos del Administrador -->
+      <div class="card">
+        <h2>Datos del Administrador</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label>Nombre del Administrador</label>
+            <input type="text" name="administrador" placeholder="Nombre completo">
+          </div>
+          <div class="field">
+            <label>Teléfono</label>
+            <input type="tel" name="telefonoAdmin" placeholder="+56 9 1234 5678">
+          </div>
+          <div class="field single">
+            <label>Email</label>
+            <input type="email" name="emailAdmin" placeholder="admin@edificio.cl">
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipamiento de Seguridad -->
+      <div class="card">
+        <h2>Equipamiento de Seguridad</h2>
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input type="checkbox" name="redHumeda" checked> <label>Red Húmeda</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="redSeca" checked> <label>Red Seca</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="extintores" checked> <label>Extintores</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="lucesEmergencia" checked> <label>Luces de Emergencia</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" name="citofonia" checked> <label>Citofonía</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evacuación -->
+      <div class="card">
+        <h2>Evacuación y Seguridad</h2>
+        <div class="form-grid single">
+          <div class="field">
+            <label>Zona de Seguridad</label>
+            <textarea name="zonaSeguridad" placeholder="Describa la zona de seguridad exterior del edificio..."></textarea>
+          </div>
+          <div class="field">
+            <label>Ruta de Evacuación Principal</label>
+            <textarea name="rutaEvacuacion" placeholder="Describa la ruta principal de evacuación..."></textarea>
+          </div>
+          <div class="field">
+            <label>Observaciones Adicionales</label>
+            <textarea name="observaciones" placeholder="Cualquier información adicional relevante..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-generate" id="btnGenerate">
+        GENERAR PLAN DE EMERGENCIA (.docx)
+      </button>
+      <div class="status" id="status"></div>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('peeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnGenerate');
+      const status = document.getElementById('status');
+
+      btn.disabled = true;
+      btn.textContent = 'Generando documento...';
+      status.textContent = '';
+
+      const form = e.target;
+      const data = {};
+
+      // Text/number inputs
+      form.querySelectorAll('input[type="text"], input[type="number"], input[type="tel"], input[type="email"], textarea, select').forEach(el => {
+        data[el.name] = el.value;
+      });
+
+      // Checkboxes
+      form.querySelectorAll('input[type="checkbox"]').forEach(el => {
+        data[el.name] = el.checked;
+      });
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        if (!res.ok) throw new Error('Error en el servidor');
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `PEE_${data.nombreEdificio || 'Condominio'}.docx`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        status.textContent = 'Documento generado exitosamente.';
+      } catch (err) {
+        status.textContent = 'Error al generar el documento. Intente nuevamente.';
+        console.error(err);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'GENERAR PLAN DE EMERGENCIA (.docx)';
+      }
+    });
+  </script>
+</body>
+</html>

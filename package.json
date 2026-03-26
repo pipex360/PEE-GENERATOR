@@ -1,0 +1,26 @@
+{
+  "name": "pee-generator",
+  "version": "1.0.0",
+  "description": "Generador de Planes de Emergencia y Evacuación para Condominios",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pipex360/PEE-GENERATOR.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pipex360/PEE-GENERATOR/issues"
+  },
+  "homepage": "https://github.com/pipex360/PEE-GENERATOR#readme",
+  "dependencies": {
+    "docx": "^9.6.1",
+    "express": "^5.2.1",
+    "file-saver": "^2.0.5"
+  }
+}
