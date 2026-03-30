@@ -9,84 +9,112 @@ from docx import Document
 
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "plantilla_pee.docx")
 
-# Mapeo: campo del formulario -> placeholder(s) en la plantilla
-FIELD_MAP = {
-    "nombre_edificio": ["{{DIRECCION_UPPER}}", "{{DIRECCION}}"],
-    "direccion": ["{{DIRECCION_UPPER}}", "{{DIRECCION}}"],
-    "coordenadas": ["{{COORDENADAS}}"],
-    "entre_calle_1": ["{{ENTRE_CALLE_1}}"],
-    "entre_calle_2": ["{{ENTRE_CALLE_2}}"],
-    "acceso_edificio": ["{{ACCESO_EDIFICIO}}"],
-    "comuna": ["{{COMUNA}}"],
-    "permiso_municipal": ["{{PERMISO_MUNICIPAL}}"],
-    "rol_avaluos": ["{{ROL_AVALUOS}}"],
-    "realizado_por": ["{{REALIZADO_POR}}"],
-    "aprobado_por": ["{{APROBADO_POR}}"],
-    "fecha_actualizacion": ["{{FECHA_ACTUALIZACION}}"],
-    "pisos_sobre": ["{{PISOS_SOBRE}}"],
-    "pisos_bajo": ["{{PISOS_BAJO}}"],
-    "superficie": ["{{SUPERFICIE}}"],
-    "carga_ocupacion": ["{{CARGA_OCUPACION}}"],
-    "acceso_carro_bomba": ["{{ACCESO_CARRO_BOMBA}}", "{{CARRO_BOMBA_SI_NO}}"],
-    "aperturas_exterior": ["{{APERTURAS_EXTERIOR}}"],
-    "num_unidades": ["{{NUM_UNIDADES}}"],
-    "num_estacionamientos": ["{{NUM_ESTACIONAMIENTOS}}"],
-    "destino_edificacion": ["{{DESTINO_EDIFICACION}}"],
-    "destino_piso_sub": ["{{DESTINO_PISO_SUB}}"],
-    "destino_piso_sub_desc": ["{{DESTINO_PISO_SUB_DESC}}"],
-    "destino_piso_1": ["{{DESTINO_PISO_1}}"],
-    "destino_piso_1_desc": ["{{DESTINO_PISO_1_DESC}}"],
-    "destino_pisos_sup": ["{{DESTINO_PISOS_SUP}}"],
-    "destino_pisos_sup_desc": ["{{DESTINO_PISOS_SUP_DESC}}"],
-    "clase_estructura": ["{{CLASE_ESTRUCTURA}}"],
-    "descripcion_estructura": ["{{DESCRIPCION_ESTRUCTURA}}"],
-    "tabiques_interiores": ["{{TABIQUES_INTERIORES}}"],
-    "fachadas_exteriores": ["{{FACHADAS_EXTERIORES}}"],
-    "red_humeda": ["{{RED_HUMEDA}}"],
-    "vias_evacuacion": ["{{VIAS_EVACUACION}}"],
-    "punto_reunion": ["{{PUNTO_REUNION}}"],
-    "zona_seguridad": ["{{ZONA_SEGURIDAD}}"],
-    "tableros_unidades": ["{{TABLEROS_UNIDADES}}"],
-    "iluminacion_emergencia": ["{{ILUMINACION_EMERGENCIA}}"],
-    "num_ascensores": ["{{NUM_ASCENSORES}}"],
-    "capacidad_personas": ["{{CAPACIDAD_PERSONAS}}"],
-    "capacidad_kilos": ["{{CAPACIDAD_KILOS}}"],
-    "sistema_ascensor": ["{{SISTEMA_ASCENSOR}}"],
-    "llave_bomberos": ["{{LLAVE_BOMBEROS}}"],
-    "cesfam_nombre": ["{{CESFAM_NOMBRE}}"],
-    "cesfam_telefono": ["{{CESFAM_TELEFONO}}"],
-    "sapu_nombre": ["{{SAPU_NOMBRE}}"],
-    "sapu_telefono": ["{{SAPU_TELEFONO}}"],
-    "hospital_nombre": ["{{HOSPITAL_NOMBRE}}"],
-    "hospital_telefono": ["{{HOSPITAL_TELEFONO}}"],
-    "hospital_urgencia_nombre": ["{{HOSPITAL_URGENCIA_NOMBRE}}"],
-    "hospital_urgencia_telefono": ["{{HOSPITAL_URGENCIA_TELEFONO}}"],
-    "bomberos_cuartel": ["{{BOMBEROS_CUARTEL}}"],
-    "bomberos_telefono": ["{{BOMBEROS_TELEFONO}}"],
-    "comisaria_nombre": ["{{COMISARIA_NOMBRE}}"],
-    "comisaria_telefono": ["{{COMISARIA_TELEFONO}}"],
-    "plan_cuadrante": ["{{PLAN_CUADRANTE}}"],
-    "seguridad_ciudadana": ["{{SEGURIDAD_CIUDADANA}}"],
-}
-
 
 def _build_replacements(data):
     """Construye el diccionario de reemplazos placeholder -> valor."""
-    replacements = {}
-    for field, placeholders in FIELD_MAP.items():
-        value = data.get(field, "")
-        for ph in placeholders:
-            # Para DIRECCION_UPPER usar mayúsculas
-            if ph == "{{DIRECCION_UPPER}}":
-                val = data.get("direccion", data.get("nombre_edificio", "")).upper()
-                replacements[ph] = val
-            # Para CARRO_BOMBA_SI_NO formatear como SI/NO
-            elif ph == "{{CARRO_BOMBA_SI_NO}}":
-                cb = data.get("acceso_carro_bomba", "NO")
-                replacements[ph] = f"SI" if cb == "SI" else f"NO"
-            else:
-                replacements[ph] = value
-    return replacements
+    direccion = data.get("direccion", "")
+    return {
+        # Portada
+        "{{REALIZADO_POR}}": data.get("realizado_por", ""),
+        "{{APROBADO_POR}}": data.get("aprobado_por", ""),
+        "{{FECHA_ACTUALIZACION}}": data.get("fecha_actualizacion", ""),
+        # Identificación
+        "{{DIRECCION_UPPER}}": direccion.upper(),
+        "{{DIRECCION}}": direccion,
+        "{{COORDENADAS}}": data.get("coordenadas", ""),
+        "{{ENTRE_CALLE_1}}": data.get("entre_calle_1", ""),
+        "{{ENTRE_CALLE_2}}": data.get("entre_calle_2", ""),
+        "{{ACCESO_EDIFICIO}}": data.get("acceso_edificio", ""),
+        "{{PERMISO_MUNICIPAL}}": data.get("permiso_municipal", "Pendiente"),
+        "{{ROL_AVALUOS}}": data.get("rol_avaluos", "Pendiente"),
+        "{{COMUNA}}": data.get("comuna", ""),
+        # Características
+        "{{PISOS_SOBRE}}": data.get("pisos_sobre", ""),
+        "{{PISOS_BAJO}}": data.get("pisos_bajo", ""),
+        "{{SUPERFICIE}}": data.get("superficie", ""),
+        "{{CARGA_OCUPACION}}": data.get("carga_ocupacion", ""),
+        "{{ACCESO_CARRO_BOMBA}}": data.get("acceso_carro_bomba", ""),
+        "{{CARRO_BOMBA_SI_NO}}": "SI" if data.get("acceso_carro_bomba") == "SI" else "NO",
+        "{{APERTURAS_EXTERIOR}}": data.get("aperturas_exterior", "Móviles"),
+        "{{NUM_UNIDADES}}": data.get("num_unidades", ""),
+        "{{NUM_ESTACIONAMIENTOS}}": data.get("num_estacionamientos", "No"),
+        "{{DESTINO_EDIFICACION}}": data.get("destino_edificacion", ""),
+        # Destinos por piso
+        "{{DESTINO_PISO_SUB}}": data.get("destino_piso_sub", ""),
+        "{{DESTINO_PISO_SUB_DESC}}": data.get("destino_piso_sub_desc", ""),
+        "{{DESTINO_PISO_1}}": data.get("destino_piso_1", ""),
+        "{{DESTINO_PISO_1_DESC}}": data.get("destino_piso_1_desc", ""),
+        "{{DESTINO_PISOS_SUP}}": data.get("destino_pisos_sup", ""),
+        "{{DESTINO_PISOS_SUP_DESC}}": data.get("destino_pisos_sup_desc", ""),
+        # Estructura
+        "{{CLASE_ESTRUCTURA}}": data.get("clase_estructura", ""),
+        "{{DESCRIPCION_ESTRUCTURA}}": data.get("descripcion_estructura", ""),
+        "{{TABIQUES_INTERIORES}}": data.get("tabiques_interiores", ""),
+        "{{FACHADAS_EXTERIORES}}": data.get("fachadas_exteriores", ""),
+        # Alarmas
+        "{{BOCINAS_ALARMA}}": data.get("bocinas_alarma", "No"),
+        "{{DETECTORES_HUMO}}": data.get("detectores_humo", "No"),
+        "{{DETECTORES_CALOR}}": data.get("detectores_calor", "No aplica"),
+        "{{PALANCAS_ALARMA}}": data.get("palancas_alarma", "No"),
+        # Comunicación
+        "{{TELEFONOS}}": data.get("telefonos", ""),
+        "{{CITOFONOS}}": data.get("citofonos", ""),
+        "{{ALTAVOCES}}": data.get("altavoces", "No"),
+        "{{ALTAVOCES_EVAC}}": data.get("altavoces", "No"),
+        "{{OTROS_COMUNICACION}}": data.get("otros_comunicacion", "No"),
+        # Incendios
+        "{{RED_SECA}}": data.get("red_seca", "No"),
+        "{{RED_HUMEDA}}": data.get("red_humeda", ""),
+        "{{ESTANQUE_AGUA}}": data.get("estanque_agua", "No"),
+        "{{EXTINTORES}}": data.get("extintores", "No"),
+        "{{RED_INERTE}}": data.get("red_inerte", "No"),
+        # Evacuación
+        "{{VIAS_EVACUACION}}": data.get("vias_evacuacion", ""),
+        "{{PUNTO_REUNION}}": data.get("punto_reunion", ""),
+        "{{ZONA_SEGURIDAD}}": data.get("zona_seguridad", ""),
+        "{{ZONA_SEGURIDAD_TEXTO}}": data.get("zona_seguridad", ""),
+        # Electricidad
+        "{{TABLERO_GENERAL}}": data.get("tablero_general", "SI"),
+        "{{TABLEROS_UNIDADES}}": data.get("tableros_unidades", ""),
+        "{{GRUPO_ELECTROGENO}}": data.get("grupo_electrogeno", "No"),
+        "{{ILUMINACION_EMERGENCIA}}": data.get("iluminacion_emergencia", ""),
+        # Gas
+        "{{GAS}}": data.get("gas", "No"),
+        "{{MEDIDORES_GAS}}": data.get("medidores_gas", "No"),
+        "{{TANQUE_GAS}}": data.get("tanque_gas", "No aplica"),
+        "{{TANQUE_PETROLEO}}": data.get("tanque_petroleo", "No"),
+        # Ventilación
+        "{{VENTILACION_CENTRALIZADA}}": data.get("ventilacion_centralizada", "No"),
+        "{{TABLERO_COMANDO_VENT}}": data.get("tablero_comando_vent", "No"),
+        "{{TOMA_AIRE}}": data.get("toma_aire", "No"),
+        # Ascensores
+        "{{NUM_ASCENSORES}}": data.get("num_ascensores", ""),
+        "{{CAPACIDAD_PERSONAS}}": data.get("capacidad_personas", ""),
+        "{{CAPACIDAD_KILOS}}": data.get("capacidad_kilos", ""),
+        "{{SISTEMA_ASCENSOR}}": data.get("sistema_ascensor", "Eléctrico"),
+        "{{LLAVE_BOMBEROS}}": data.get("llave_bomberos", "Conserjería"),
+        # Teléfonos emergencia
+        "{{CESFAM_NOMBRE}}": data.get("cesfam_nombre", ""),
+        "{{CESFAM_TELEFONO}}": data.get("cesfam_telefono", ""),
+        "{{SAPU_NOMBRE}}": data.get("sapu_nombre", ""),
+        "{{SAPU_TELEFONO}}": data.get("sapu_telefono", ""),
+        "{{HOSPITAL_NOMBRE}}": data.get("hospital_nombre", ""),
+        "{{HOSPITAL_TELEFONO}}": data.get("hospital_telefono", ""),
+        "{{HOSPITAL_URGENCIA_NOMBRE}}": data.get("hospital_urgencia_nombre", ""),
+        "{{HOSPITAL_URGENCIA_TELEFONO}}": data.get("hospital_urgencia_telefono", ""),
+        "{{BOMBEROS_CUARTEL}}": data.get("bomberos_cuartel", ""),
+        "{{BOMBEROS_TELEFONO}}": data.get("bomberos_telefono", ""),
+        "{{COMISARIA_NOMBRE}}": data.get("comisaria_nombre", ""),
+        "{{COMISARIA_TELEFONO}}": data.get("comisaria_telefono", ""),
+        "{{PLAN_CUADRANTE}}": data.get("plan_cuadrante", ""),
+        "{{SEGURIDAD_CIUDADANA}}": data.get("seguridad_ciudadana", ""),
+        # Servicios edificio
+        "{{EMPRESA_BOMBAS_AGUA}}": data.get("empresa_bombas_agua", ""),
+        "{{EMPRESA_ELECTROGENO}}": data.get("empresa_electrogeno", ""),
+        "{{EMPRESA_ASCENSORES}}": data.get("empresa_ascensores", ""),
+        "{{EMPRESA_INCENDIOS}}": data.get("empresa_incendios", ""),
+        "{{EMPRESA_EXTINTORES}}": data.get("empresa_extintores", ""),
+    }
 
 
 def _replace_in_runs(runs, replacements):
@@ -99,14 +127,11 @@ def _replace_in_runs(runs, replacements):
 
 def generate_pee(data, output_path):
     """Genera el documento PEE copiando la plantilla y reemplazando los datos."""
-    # Copiar plantilla al destino
     shutil.copy2(TEMPLATE_PATH, output_path)
-
-    # Abrir la copia y reemplazar
     doc = Document(output_path)
     replacements = _build_replacements(data)
 
-    # Reemplazar en párrafos del cuerpo
+    # Reemplazar en párrafos
     for paragraph in doc.paragraphs:
         _replace_in_runs(paragraph.runs, replacements)
 
@@ -119,13 +144,10 @@ def generate_pee(data, output_path):
 
     # Reemplazar en headers y footers
     for section in doc.sections:
-        for header in [section.header, section.first_page_header]:
-            if header:
-                for paragraph in header.paragraphs:
-                    _replace_in_runs(paragraph.runs, replacements)
-        for footer in [section.footer, section.first_page_footer]:
-            if footer:
-                for paragraph in footer.paragraphs:
+        for part in [section.header, section.first_page_header,
+                     section.footer, section.first_page_footer]:
+            if part:
+                for paragraph in part.paragraphs:
                     _replace_in_runs(paragraph.runs, replacements)
 
     doc.save(output_path)
