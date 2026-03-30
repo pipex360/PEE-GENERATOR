@@ -117,8 +117,9 @@
                     <input type="text" name="superficie" placeholder="Ej: 2.670,55">
                 </div>
                 <div class="form-group">
-                    <label>Carga de ocupacion (Art.4.2.4 OGUC)</label>
-                    <input type="text" name="carga_ocupacion" placeholder="Ej: 267">
+                    <label>Carga de ocupacion</label>
+                    <input type="text" disabled placeholder="Se calcula automaticamente" style="background:#f0f0f0;">
+                    <span class="hint">Superficie / factor segun destino (Art.4.2.4 OGUC)</span>
                 </div>
                 <div class="form-group">
                     <label>Acceso a carro bomba</label>
@@ -170,7 +171,8 @@
                 </div>
                 <div class="form-group">
                     <label>Pisos superiores - Nivel</label>
-                    <input type="text" name="destino_pisos_sup" placeholder="Ej: Piso 2 al 14">
+                    <input type="text" disabled placeholder="Se calcula segun pisos sobre nivel" style="background:#f0f0f0;">
+                    <span class="hint">Se genera automaticamente: "Piso 2 al N"</span>
                 </div>
                 <div class="form-group">
                     <label>Pisos superiores - Uso</label>

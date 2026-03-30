@@ -4,15 +4,64 @@ Copia el documento plantilla y reemplaza los placeholders con los datos del form
 """
 import os
 import shutil
+import re
 from docx import Document
 
 
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "plantilla_pee.docx")
 
+# Factores de carga de ocupación según Art. 4.2.4 OGUC (m² por persona)
+CARGA_FACTORES = {
+    "Habitacional": 15,
+    "Oficina": 10,
+    "Comercial": 3,
+    "Mixto": 10,
+}
+
+
+def _calcular_carga_ocupacion(data):
+    """Calcula la carga de ocupación según Art. 4.2.4 OGUC.
+    Fórmula: superficie / factor según destino."""
+    superficie_str = data.get("superficie", "")
+    destino = data.get("destino_edificacion", "Habitacional")
+
+    # Limpiar superficie: "2.670,55" -> 2670.55
+    superficie_str = superficie_str.replace(".", "").replace(",", ".")
+    try:
+        superficie = float(superficie_str)
+    except (ValueError, TypeError):
+        return ""
+
+    factor = CARGA_FACTORES.get(destino, 10)
+    carga = int(superficie / factor)
+    return str(carga)
+
+
+def _calcular_destino_pisos_sup(data):
+    """Calcula el rango de pisos superiores: 'Piso 2 al {N}'."""
+    pisos_str = data.get("pisos_sobre", "")
+    # Extraer número de la cadena (ej: "14 pisos" -> 14, "14" -> 14)
+    match = re.search(r"(\d+)", pisos_str)
+    if match:
+        n = int(match.group(1))
+        if n > 2:
+            return f"Piso 2 al {n}"
+        elif n == 2:
+            return "Piso 2"
+    return data.get("destino_pisos_sup", "")
+
 
 def _build_replacements(data):
     """Construye el diccionario de reemplazos placeholder -> valor."""
     direccion = data.get("direccion", "")
+    acceso_carro = data.get("acceso_carro_bomba", "NO")
+
+    # Auto-calcular carga de ocupación
+    carga = _calcular_carga_ocupacion(data)
+
+    # Auto-calcular rango pisos superiores
+    pisos_sup = _calcular_destino_pisos_sup(data)
+
     return {
         # Portada
         "{{REALIZADO_POR}}": data.get("realizado_por", ""),
@@ -32,19 +81,21 @@ def _build_replacements(data):
         "{{PISOS_SOBRE}}": data.get("pisos_sobre", ""),
         "{{PISOS_BAJO}}": data.get("pisos_bajo", ""),
         "{{SUPERFICIE}}": data.get("superficie", ""),
-        "{{CARGA_OCUPACION}}": data.get("carga_ocupacion", ""),
-        "{{ACCESO_CARRO_BOMBA}}": data.get("acceso_carro_bomba", ""),
-        "{{CARRO_BOMBA_SI_NO}}": "SI" if data.get("acceso_carro_bomba") == "SI" else "NO",
+        "{{CARGA_OCUPACION}}": carga,
+        # Carro bomba: SI X / NO o SI / NO X
+        "{{CARRO_SI}}": "SI X" if acceso_carro == "SI" else "SI",
+        "{{CARRO_NO}}": "NO" if acceso_carro == "SI" else "NO X",
+        "{{CALLE_CARRO_BOMBA}}": data.get("calle_carro_bomba", "") if acceso_carro == "SI" else "",
         "{{APERTURAS_EXTERIOR}}": data.get("aperturas_exterior", "Móviles"),
         "{{NUM_UNIDADES}}": data.get("num_unidades", ""),
         "{{NUM_ESTACIONAMIENTOS}}": data.get("num_estacionamientos", "No"),
         "{{DESTINO_EDIFICACION}}": data.get("destino_edificacion", ""),
         # Destinos por piso
-        "{{DESTINO_PISO_SUB}}": data.get("destino_piso_sub", ""),
+        "{{DESTINO_PISO_SUB}}": data.get("destino_piso_sub", "Subterráneo"),
         "{{DESTINO_PISO_SUB_DESC}}": data.get("destino_piso_sub_desc", ""),
-        "{{DESTINO_PISO_1}}": data.get("destino_piso_1", ""),
+        "{{DESTINO_PISO_1}}": data.get("destino_piso_1", "Piso 1"),
         "{{DESTINO_PISO_1_DESC}}": data.get("destino_piso_1_desc", ""),
-        "{{DESTINO_PISOS_SUP}}": data.get("destino_pisos_sup", ""),
+        "{{DESTINO_PISOS_SUP}}": pisos_sup,
         "{{DESTINO_PISOS_SUP_DESC}}": data.get("destino_pisos_sup_desc", ""),
         # Estructura
         "{{CLASE_ESTRUCTURA}}": data.get("clase_estructura", ""),
