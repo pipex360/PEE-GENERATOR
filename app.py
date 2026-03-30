@@ -36,7 +36,12 @@ def generar():
         "num_estacionamientos": request.form.get("num_estacionamientos", "No"),
         "destino_edificacion": request.form.get("destino_edificacion", ""),
         # Pisos y destinos
-        "destinos_pisos": request.form.get("destinos_pisos", ""),
+        "destino_piso_sub": request.form.get("destino_piso_sub", ""),
+        "destino_piso_sub_desc": request.form.get("destino_piso_sub_desc", ""),
+        "destino_piso_1": request.form.get("destino_piso_1", ""),
+        "destino_piso_1_desc": request.form.get("destino_piso_1_desc", ""),
+        "destino_pisos_sup": request.form.get("destino_pisos_sup", ""),
+        "destino_pisos_sup_desc": request.form.get("destino_pisos_sup_desc", ""),
         # Estructura
         "clase_estructura": request.form.get("clase_estructura", ""),
         "descripcion_estructura": request.form.get("descripcion_estructura", ""),
