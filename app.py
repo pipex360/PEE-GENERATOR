@@ -1,14 +1,37 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, jsonify
 from docx_generator import generate_pee
+from analizar_edificio import analizar_foto
 import tempfile
 import os
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB max
 
 
 @app.route("/", methods=["GET"])
 def index():
     return render_template("index.html")
+
+
+@app.route("/analizar-edificio", methods=["POST"])
+def analizar_edificio_route():
+    if "foto" not in request.files:
+        return jsonify({"error": "No se envió ninguna foto"}), 400
+    foto = request.files["foto"]
+    if foto.filename == "":
+        return jsonify({"error": "No se seleccionó ningún archivo"}), 400
+
+    image_bytes = foto.read()
+    # Detectar tipo de imagen
+    ext = foto.filename.rsplit(".", 1)[-1].lower()
+    media_types = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}
+    media_type = media_types.get(ext, "image/jpeg")
+
+    try:
+        resultado = analizar_foto(image_bytes, media_type)
+        return jsonify(resultado)
+    except Exception as e:
+        return jsonify({"error": f"Error al analizar la imagen: {str(e)}"}), 500
 
 
 @app.route("/generar", methods=["POST"])

@@ -184,10 +184,17 @@
         <!-- ESTRUCTURA -->
         <div class="section">
             <h2>3. Estructura y Material Predominante</h2>
+            <div style="background:#e8f4fd;border:2px dashed #2d6da8;border-radius:8px;padding:20px;margin-bottom:18px;text-align:center;">
+                <label style="font-weight:600;color:#1a3a5c;font-size:1em;display:block;margin-bottom:10px;">Analisis automatico con IA: Suba una foto del edificio</label>
+                <input type="file" id="foto_edificio" accept="image/*" style="margin-bottom:10px;">
+                <br>
+                <button type="button" id="btn_analizar" onclick="analizarEdificio()" style="padding:10px 25px;background:#2d6da8;color:white;border:none;border-radius:6px;font-size:0.95em;cursor:pointer;">Analizar Foto</button>
+                <div id="analisis_status" style="margin-top:10px;font-size:0.9em;color:#555;"></div>
+            </div>
             <div class="form-grid">
                 <div class="form-group">
                     <label>Clase de Estructura (Art.5.3.1 OGUC)</label>
-                    <select name="clase_estructura">
+                    <select name="clase_estructura" id="clase_estructura">
                         <option value="CLASE A">CLASE A - Acero</option>
                         <option value="CLASE B" selected>CLASE B - Hormigon Armado</option>
                         <option value="CLASE C">CLASE C - Albañileria Reforzada</option>
@@ -197,15 +204,15 @@
                 </div>
                 <div class="form-group full">
                     <label>Descripcion de la estructura</label>
-                    <textarea name="descripcion_estructura" placeholder="Describa los elementos estructurales principales (fundaciones, pilares, muros, vigas, losas)"></textarea>
+                    <textarea name="descripcion_estructura" id="descripcion_estructura" placeholder="Describa los elementos estructurales principales (fundaciones, pilares, muros, vigas, losas)"></textarea>
                 </div>
                 <div class="form-group full">
                     <label>Tabiques interiores</label>
-                    <textarea name="tabiques_interiores" placeholder="Ej: Tabiquería en perfiles metálicos de acero galvanizado y placas de yeso-cartón"></textarea>
+                    <textarea name="tabiques_interiores" id="tabiques_interiores" placeholder="Ej: Tabiquería en perfiles metálicos de acero galvanizado y placas de yeso-cartón"></textarea>
                 </div>
                 <div class="form-group full">
                     <label>Caracteristicas de fachadas exteriores</label>
-                    <textarea name="fachadas_exteriores" placeholder="Describa materiales, ventanas, balcones, revestimientos, etc."></textarea>
+                    <textarea name="fachadas_exteriores" id="fachadas_exteriores" placeholder="Describa materiales, ventanas, balcones, revestimientos, etc."></textarea>
                 </div>
             </div>
         </div>
@@ -495,5 +502,66 @@
 
     </div>
     </form>
+
+<script>
+function analizarEdificio() {
+    const fileInput = document.getElementById('foto_edificio');
+    const status = document.getElementById('analisis_status');
+    const btn = document.getElementById('btn_analizar');
+
+    if (!fileInput.files || !fileInput.files[0]) {
+        status.textContent = 'Por favor seleccione una foto del edificio primero.';
+        status.style.color = '#c00';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('foto', fileInput.files[0]);
+
+    btn.disabled = true;
+    btn.textContent = 'Analizando...';
+    status.textContent = 'Analizando la foto con IA, espere unos segundos...';
+    status.style.color = '#2d6da8';
+
+    fetch('/analizar-edificio', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                status.textContent = 'Error: ' + data.error;
+                status.style.color = '#c00';
+            } else {
+                // Llenar campos
+                if (data.clase_estructura) {
+                    const sel = document.getElementById('clase_estructura');
+                    for (let opt of sel.options) {
+                        if (opt.value === data.clase_estructura) {
+                            opt.selected = true;
+                            break;
+                        }
+                    }
+                }
+                if (data.descripcion_estructura) {
+                    document.getElementById('descripcion_estructura').value = data.descripcion_estructura;
+                }
+                if (data.tabiques_interiores) {
+                    document.getElementById('tabiques_interiores').value = data.tabiques_interiores;
+                }
+                if (data.fachadas_exteriores) {
+                    document.getElementById('fachadas_exteriores').value = data.fachadas_exteriores;
+                }
+                status.textContent = 'Analisis completado. Los campos fueron llenados automaticamente. Puede editarlos si lo necesita.';
+                status.style.color = '#0a7a0a';
+            }
+        })
+        .catch(err => {
+            status.textContent = 'Error de conexion: ' + err.message;
+            status.style.color = '#c00';
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Analizar Foto';
+        });
+}
+</script>
 </body>
 </html>
