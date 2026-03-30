@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador PEE - Plan de Emergencia y Evacuación</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #333; }
+        .header { background: linear-gradient(135deg, #1a3a5c, #2d6da8); color: white; padding: 30px 20px; text-align: center; }
+        .header h1 { font-size: 1.8em; margin-bottom: 5px; }
+        .header p { opacity: 0.85; font-size: 0.95em; }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .section { background: white; border-radius: 10px; padding: 25px 30px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .section h2 { color: #1a3a5c; font-size: 1.2em; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 2px solid #e8edf2; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label { font-size: 0.85em; font-weight: 600; color: #555; margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px;
+            font-size: 0.95em; transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: #2d6da8; box-shadow: 0 0 0 3px rgba(45,109,168,0.1);
+        }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .btn-submit {
+            display: block; width: 100%; padding: 15px; background: linear-gradient(135deg, #1a3a5c, #2d6da8);
+            color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 600;
+            cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; margin-top: 10px;
+        }
+        .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,58,92,0.3); }
+        .btn-submit:active { transform: translateY(0); }
+        .hint { font-size: 0.78em; color: #888; margin-top: 3px; }
+        @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Generador de Plan de Emergencia y Evacuacion</h1>
+        <p>Complete los datos del condominio para generar el documento PEE personalizado</p>
+    </div>
+
+    <form action="/generar" method="POST">
+    <div class="container">
+
+        <!-- IDENTIFICACIÓN -->
+        <div class="section">
+            <h2>1. Identificacion del Edificio</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre del Edificio / Condominio *</label>
+                    <input type="text" name="nombre_edificio" required placeholder="Ej: Edificio Los Aromos">
+                </div>
+                <div class="form-group">
+                    <label>Direccion *</label>
+                    <input type="text" name="direccion" required placeholder="Ej: Av. Providencia 1234">
+                </div>
+                <div class="form-group">
+                    <label>Entre Calle 1</label>
+                    <input type="text" name="entre_calle_1" placeholder="Nombre de la primera calle">
+                </div>
+                <div class="form-group">
+                    <label>Entre Calle 2</label>
+                    <input type="text" name="entre_calle_2" placeholder="Nombre de la segunda calle">
+                </div>
+                <div class="form-group">
+                    <label>Acceso al Edificio (calle)</label>
+                    <input type="text" name="acceso_edificio" placeholder="Calle por donde se accede">
+                </div>
+                <div class="form-group">
+                    <label>Comuna *</label>
+                    <input type="text" name="comuna" required placeholder="Ej: Santiago">
+                </div>
+                <div class="form-group">
+                    <label>Coordenadas Google Maps</label>
+                    <input type="text" name="coordenadas" placeholder="Ej: -33.4424, -70.6428">
+                </div>
+                <div class="form-group">
+                    <label>Permiso Municipal N°</label>
+                    <input type="text" name="permiso_municipal" value="Pendiente">
+                </div>
+                <div class="form-group">
+                    <label>Rol de Avaluos SII</label>
+                    <input type="text" name="rol_avaluos" value="Pendiente">
+                </div>
+                <div class="form-group">
+                    <label>Realizado por</label>
+                    <input type="text" name="realizado_por" placeholder="Nombre de quien elabora el plan">
+                </div>
+                <div class="form-group">
+                    <label>Aprobado por</label>
+                    <input type="text" name="aprobado_por" placeholder="Nombre de quien aprueba">
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Actualizacion</label>
+                    <input type="date" name="fecha_actualizacion">
+                </div>
+            </div>
+        </div>
+
+        <!-- CARACTERÍSTICAS -->
+        <div class="section">
+            <h2>2. Caracteristicas del Edificio</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Pisos sobre nivel de calle *</label>
+                    <input type="number" name="pisos_sobre" required placeholder="Ej: 14">
+                </div>
+                <div class="form-group">
+                    <label>Pisos bajo nivel (subterraneos)</label>
+                    <input type="text" name="pisos_bajo" placeholder="Ej: 1 subterráneo">
+                </div>
+                <div class="form-group">
+                    <label>Superficie edificada (m2)</label>
+                    <input type="text" name="superficie" placeholder="Ej: 2.670,55">
+                </div>
+                <div class="form-group">
+                    <label>Carga de ocupacion (Art.4.2.4 OGUC)</label>
+                    <input type="text" name="carga_ocupacion" placeholder="Ej: 267">
+                </div>
+                <div class="form-group">
+                    <label>Acceso a carro bomba</label>
+                    <select name="acceso_carro_bomba">
+                        <option value="NO">NO</option>
+                        <option value="SI">SI</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Calle acceso carro bomba</label>
+                    <input type="text" name="calle_carro_bomba" placeholder="Si aplica">
+                </div>
+                <div class="form-group">
+                    <label>Aperturas hacia el exterior</label>
+                    <input type="text" name="aperturas_exterior" value="Moviles">
+                </div>
+                <div class="form-group">
+                    <label>N° de unidades (dptos/oficinas) *</label>
+                    <input type="text" name="num_unidades" required placeholder="Ej: 106">
+                </div>
+                <div class="form-group">
+                    <label>N° de estacionamientos</label>
+                    <input type="text" name="num_estacionamientos" placeholder="Ej: 50 o No">
+                </div>
+                <div class="form-group">
+                    <label>Destino de la edificacion *</label>
+                    <select name="destino_edificacion">
+                        <option value="Habitacional">Habitacional</option>
+                        <option value="Oficina">Oficina</option>
+                        <option value="Mixto">Mixto (Habitacional y Comercial)</option>
+                        <option value="Comercial">Comercial</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>Destinos por piso (detalle)</label>
+                    <textarea name="destinos_pisos" placeholder="Ej:&#10;Subterráneo: Estanque de agua / Sala de basura&#10;Piso 1: Conserjería / Locales&#10;Piso 2 al 14: Departamentos"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESTRUCTURA -->
+        <div class="section">
+            <h2>3. Estructura y Material Predominante</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Clase de Estructura (Art.5.3.1 OGUC)</label>
+                    <select name="clase_estructura">
+                        <option value="CLASE A">CLASE A - Acero</option>
+                        <option value="CLASE B" selected>CLASE B - Hormigon Armado</option>
+                        <option value="CLASE C">CLASE C - Albañileria Reforzada</option>
+                        <option value="CLASE D">CLASE D - Albañileria Confinada</option>
+                        <option value="CLASE E">CLASE E - Madera</option>
+                    </select>
+                </div>
+                <div class="form-group full">
+                    <label>Descripcion de la estructura</label>
+                    <textarea name="descripcion_estructura" placeholder="Describa los elementos estructurales principales (fundaciones, pilares, muros, vigas, losas)"></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Tabiques interiores</label>
+                    <textarea name="tabiques_interiores" placeholder="Ej: Tabiquería en perfiles metálicos de acero galvanizado y placas de yeso-cartón"></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Caracteristicas de fachadas exteriores</label>
+                    <textarea name="fachadas_exteriores" placeholder="Describa materiales, ventanas, balcones, revestimientos, etc."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ALARMAS -->
+        <div class="section">
+            <h2>4. Alarmas y Deteccion de Incendio</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Bocinas de alarma</label>
+                    <select name="bocinas_alarma"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Detectores de humo</label>
+                    <select name="detectores_humo"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Detectores de calor</label>
+                    <select name="detectores_calor"><option value="No aplica">No aplica</option><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Palancas de alarma</label>
+                    <select name="palancas_alarma"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMUNICACIÓN -->
+        <div class="section">
+            <h2>5. Sistemas de Comunicacion</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Telefonos</label>
+                    <input type="text" name="telefonos" placeholder="Ej: SI, cada oficina">
+                </div>
+                <div class="form-group">
+                    <label>Citofonos</label>
+                    <input type="text" name="citofonos" placeholder="Ej: En conserjería y departamentos">
+                </div>
+                <div class="form-group">
+                    <label>Sistema de altavoces</label>
+                    <select name="altavoces"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Otros sistemas</label>
+                    <input type="text" name="otros_comunicacion" placeholder="Ej: Radio, WhatsApp grupal">
+                </div>
+            </div>
+        </div>
+
+        <!-- INCENDIOS -->
+        <div class="section">
+            <h2>6. Sistema de Combate de Incendios</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Red Seca</label>
+                    <select name="red_seca"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Estanque de agua</label>
+                    <select name="estanque_agua"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+                <div class="form-group full">
+                    <label>Red Humeda (descripcion)</label>
+                    <textarea name="red_humeda" placeholder="Describa el sistema de red húmeda: gabinetes, mangueras, ubicación, etc."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Extintores portatiles</label>
+                    <select name="extintores"><option value="Si">Si</option><option value="No">No</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Red Inerte de electricidad</label>
+                    <select name="red_inerte"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVACUACIÓN -->
+        <div class="section">
+            <h2>7. Vias de Evacuacion y Zonas de Seguridad</h2>
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label>Vias de Evacuacion *</label>
+                    <textarea name="vias_evacuacion" required placeholder="Describa las vías de evacuación del edificio (pasillos, escaleras, señalización, etc.)"></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Punto de Reunion</label>
+                    <textarea name="punto_reunion" placeholder="Describa el punto de reunión intermedio o indique si no aplica"></textarea>
+                </div>
+                <div class="form-group full">
+                    <label>Zona de Seguridad *</label>
+                    <textarea name="zona_seguridad" required placeholder="Describa la zona de seguridad principal exterior (ubicación exacta, referencia)"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ELECTRICIDAD -->
+        <div class="section">
+            <h2>8. Electricidad</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Tablero electrico general</label>
+                    <select name="tablero_general"><option value="SI">SI</option><option value="No">No</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Grupo electrogeno</label>
+                    <select name="grupo_electrogeno"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+                <div class="form-group full">
+                    <label>Tableros de unidades</label>
+                    <input type="text" name="tableros_unidades" placeholder="Ej: Ubicados detrás de la puerta de cada departamento. Medidores en sala eléctrica.">
+                </div>
+                <div class="form-group full">
+                    <label>Iluminacion de emergencia</label>
+                    <input type="text" name="iluminacion_emergencia" placeholder="Ej: SI, en los pasillos de cada piso y áreas comunes">
+                </div>
+            </div>
+        </div>
+
+        <!-- GAS -->
+        <div class="section">
+            <h2>9. Combustible y Gas</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Gas</label>
+                    <select name="gas"><option value="Si">Si</option><option value="No">No</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Medidores de gas</label>
+                    <select name="medidores_gas"><option value="Si">Si</option><option value="No">No</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Tanque de gas</label>
+                    <input type="text" name="tanque_gas" value="No aplica">
+                </div>
+                <div class="form-group">
+                    <label>Tanque de petroleo</label>
+                    <select name="tanque_petroleo"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- VENTILACIÓN -->
+        <div class="section">
+            <h2>10. Ventilacion Centralizada</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Sistema centralizado</label>
+                    <input type="text" name="ventilacion_centralizada" placeholder="Ej: SI (Presurización caja escala) o No">
+                </div>
+                <div class="form-group">
+                    <label>Tablero de comando</label>
+                    <select name="tablero_comando_vent"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Toma de aire</label>
+                    <select name="toma_aire"><option value="No">No</option><option value="Si">Si</option></select>
+                </div>
+            </div>
+        </div>
+
+        <!-- ASCENSORES -->
+        <div class="section">
+            <h2>11. Ascensores</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Numero de ascensores</label>
+                    <input type="number" name="num_ascensores" placeholder="Ej: 2">
+                </div>
+                <div class="form-group">
+                    <label>Capacidad maxima (personas)</label>
+                    <input type="number" name="capacidad_personas" placeholder="Ej: 9">
+                </div>
+                <div class="form-group">
+                    <label>Capacidad maxima (kilos)</label>
+                    <input type="number" name="capacidad_kilos" placeholder="Ej: 600">
+                </div>
+                <div class="form-group">
+                    <label>Sistema del ascensor</label>
+                    <select name="sistema_ascensor">
+                        <option value="Electrico">Electrico</option>
+                        <option value="Hidraulico">Hidraulico</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Llave para Bomberos</label>
+                    <input type="text" name="llave_bomberos" value="Conserjeria">
+                </div>
+            </div>
+        </div>
+
+        <!-- TELÉFONOS DE EMERGENCIA LOCALES -->
+        <div class="section">
+            <h2>12. Telefonos de Emergencia Locales</h2>
+            <p style="font-size:0.85em;color:#666;margin-bottom:15px;">Los numeros nacionales (SAMU 131, Bomberos 132, Carabineros 133, PDI 134) se incluyen automaticamente.</p>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>CESFAM cercano (nombre)</label>
+                    <input type="text" name="cesfam_nombre" placeholder="Nombre del CESFAM">
+                </div>
+                <div class="form-group">
+                    <label>CESFAM telefono</label>
+                    <input type="text" name="cesfam_telefono" placeholder="Ej: (+56) 224833563">
+                </div>
+                <div class="form-group">
+                    <label>SAPU cercano (nombre)</label>
+                    <input type="text" name="sapu_nombre" placeholder="Nombre del SAPU">
+                </div>
+                <div class="form-group">
+                    <label>SAPU telefono</label>
+                    <input type="text" name="sapu_telefono" placeholder="Ej: (+56) 224985443">
+                </div>
+                <div class="form-group">
+                    <label>Hospital cercano (nombre)</label>
+                    <input type="text" name="hospital_nombre" placeholder="Nombre del hospital">
+                </div>
+                <div class="form-group">
+                    <label>Hospital telefono</label>
+                    <input type="text" name="hospital_telefono" placeholder="Ej: (+56) 225749000">
+                </div>
+                <div class="form-group">
+                    <label>Hospital de Urgencia (nombre)</label>
+                    <input type="text" name="hospital_urgencia_nombre" placeholder="Nombre hospital de urgencia">
+                </div>
+                <div class="form-group">
+                    <label>Hospital Urgencia telefono</label>
+                    <input type="text" name="hospital_urgencia_telefono" placeholder="Ej: (+56) 225681100">
+                </div>
+                <div class="form-group">
+                    <label>Cuartel de Bomberos local</label>
+                    <input type="text" name="bomberos_cuartel" placeholder="Nombre del cuartel">
+                </div>
+                <div class="form-group">
+                    <label>Bomberos telefono local</label>
+                    <input type="text" name="bomberos_telefono" placeholder="Ej: (+56) 223061500">
+                </div>
+                <div class="form-group">
+                    <label>Comisaria cercana</label>
+                    <input type="text" name="comisaria_nombre" placeholder="Ej: 1ª Comisaría de Santiago">
+                </div>
+                <div class="form-group">
+                    <label>Comisaria telefono</label>
+                    <input type="text" name="comisaria_telefono" placeholder="Ej: (+56) 229223700">
+                </div>
+                <div class="form-group">
+                    <label>Plan Cuadrante telefono</label>
+                    <input type="text" name="plan_cuadrante" placeholder="Ej: (+569) 96070194">
+                </div>
+                <div class="form-group">
+                    <label>Seguridad Ciudadana telefono</label>
+                    <input type="text" name="seguridad_ciudadana" placeholder="Ej: (+56) 229220000">
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICIOS EDIFICIO -->
+        <div class="section">
+            <h2>13. Empresas de Servicios del Edificio</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Bombas de agua (empresa/tel)</label>
+                    <input type="text" name="empresa_bombas_agua" placeholder="Empresa y teléfono">
+                </div>
+                <div class="form-group">
+                    <label>Grupo electrogeno (empresa/tel)</label>
+                    <input type="text" name="empresa_electrogeno" placeholder="Empresa y teléfono">
+                </div>
+                <div class="form-group">
+                    <label>Ascensores (empresa/tel)</label>
+                    <input type="text" name="empresa_ascensores" placeholder="Empresa y teléfono">
+                </div>
+                <div class="form-group">
+                    <label>Sistema de incendios (empresa/tel)</label>
+                    <input type="text" name="empresa_incendios" placeholder="Empresa y teléfono">
+                </div>
+                <div class="form-group">
+                    <label>Extintores (empresa/tel)</label>
+                    <input type="text" name="empresa_extintores" placeholder="Empresa y teléfono">
+                </div>
+            </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="section">
+            <button type="submit" class="btn-submit">Generar Plan de Emergencia y Evacuacion (DOCX)</button>
+        </div>
+
+    </div>
+    </form>
+</body>
+</html>
